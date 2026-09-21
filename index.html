@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -65,7 +64,7 @@
 
       <!-- 備註 -->
       <div>
-        <label class="block text-xs font-medium text-slate-300 mb-1">紫外線</label>
+        <label class="block text-xs font-medium text-slate-300 mb-1">紫外線<span class="text-rose-400">*</span></label>
         <textarea id="notesField" rows="2" placeholder="0~11+" 
           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-emerald-500"></textarea>
       </div>
@@ -170,7 +169,7 @@
         statusAlert.innerText = `🎉 寫入成功！時間：${timestamp}`;
 
         // 清空打字輸入框，保留 GPS 座標
-        document.getElementById('locationField').value = '';
+        //document.getElementById('locationField').value = '';
         document.getElementById('speciesField').value = '';
         document.getElementById('quantityField').value = '';
         document.getElementById('notesField').value = '';
