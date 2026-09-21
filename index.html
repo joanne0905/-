@@ -41,31 +41,24 @@
         <p id="gpsStatus" class="text-[10px] text-slate-400 mt-1">📡 頁面已自動啟動定位服務...</p>
       </div>
 
-      <!-- 校園地點 -->
-      <!--<div>
-        <label class="block text-xs font-medium text-slate-300 mb-1">校園地點 <span class="text-rose-400">*</span></label>
-        <input type="text" id="locationField" required placeholder="例如：生態池木棧道、操場西側樹林" 
-          class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-emerald-500">
-      </div>-->
-
-      <!-- 物種名稱 -->
+      <!-- 溫度 -->
       <div>
         <label class="block text-xs font-medium text-slate-300 mb-1">溫度 <span class="text-rose-400">*</span></label>
         <input type="text" id="speciesField" required placeholder="例如：28" 
           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-emerald-500">
       </div>
 
-      <!-- 數量與單位 -->
+      <!-- 天氣 -->
       <div>
         <label class="block text-xs font-medium text-slate-300 mb-1">天氣 <span class="text-rose-400">*</span></label>
         <input type="text" id="quantityField" required placeholder="多雲、雨、晴" 
           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-emerald-500">
       </div>
 
-      <!-- 備註 -->
+      <!-- 紫外線 -->
       <div>
-        <label class="block text-xs font-medium text-slate-300 mb-1">紫外線<span class="text-rose-400">*</span></label>
-        <textarea id="notesField" rows="2" placeholder="0~11+" 
+        <label class="block text-xs font-medium text-slate-300 mb-1">紫外線 <span class="text-rose-400">*</span></label>
+        <textarea id="notesField" rows="2" placeholder="0~11+" required
           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-emerald-500"></textarea>
       </div>
 
@@ -134,7 +127,7 @@
         alert("請先輸入您的 Google Apps Script 部署網址！");
         return;
       }
-      localStorage.setItem('last_gas_url', url);
+      localStorage.getItem('last_gas_url') !== url && localStorage.setItem('last_gas_url', url);
 
       // 送出時「當下」自動生成本地標準時間字串 (格式: YYYY-MM-DD HH:MM:SS)
       const now = new Date();
@@ -145,9 +138,13 @@
         String(now.getMinutes()).padStart(2, '0') + ":" + 
         String(now.getSeconds()).padStart(2, '0');
 
+      // 檢查 locationField 是否存在，若無則傳送空字串或固定值
+      const locationEl = document.getElementById('locationField');
+      const locationVal = locationEl ? locationEl.value.trim() : "";
+
       const payload = {
         datetime: timestamp,
-        location: document.getElementById('locationField').value.trim(),
+        location: locationVal,
         gps: gpsField.value || "未記錄",
         species: document.getElementById('speciesField').value.trim(),
         quantity: document.getElementById('quantityField').value.trim(),
@@ -161,7 +158,7 @@
         await fetch(url, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain" }, // 使用 text/plain 可避免部分 GAS CORS 預檢問題
           body: JSON.stringify(payload)
         });
 
@@ -169,7 +166,6 @@
         statusAlert.innerText = `🎉 寫入成功！時間：${timestamp}`;
 
         // 清空打字輸入框，保留 GPS 座標
-        //document.getElementById('locationField').value = '';
         document.getElementById('speciesField').value = '';
         document.getElementById('quantityField').value = '';
         document.getElementById('notesField').value = '';
@@ -177,7 +173,7 @@
         // 重新更新一次 GPS 定位
         autoGetGPS();
       } catch (err) {
-        statusAlert.className = "text-center text-xs p-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-700 block";
+        statusAlert.className = "text-center text-[11px] p-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-700 block";
         statusAlert.innerText = `❌ 傳送失敗: ${err.message}`;
       } finally {
         submitBtn.disabled = false;
